@@ -4,7 +4,8 @@ A GitHub template repository for building modern macOS desktop apps in Rust with
 
 ## What you get
 
-- `iced` starter UI with a clean, Apple-style baseline
+- `iced` starter UI with a centered terminal-style shell (ASCII banner + command deck)
+- keyboard-first controls (global shortcuts + focus cycling)
 - macOS `.app` bundling script
 - icon pipeline (`AppIcon-1024.png` -> `AppIcon.icns`)
 - default icon generator using SF Symbols (if no icon is provided)
@@ -49,6 +50,18 @@ APP_BUNDLE_ID="com.example.myapp" \
 UNIVERSAL=1 \
 ./scripts/build_macos_app.sh
 ```
+
+## Default UI behavior
+
+- Layout stays centered and adapts components for narrow or wide window sizes.
+- The shell uses a CLI-inspired visual style with command output and script previews.
+- Keyboard shortcuts are wired for every primary action:
+  - `Cmd+R`: show check command
+  - `Cmd+B`: show build command with current `APP_NAME` + `APP_BUNDLE_ID`
+  - `Cmd+K`: reset fields
+  - `Cmd+1` / `Cmd+2`: focus app name / bundle ID
+  - `Tab` / `Shift+Tab`: move focus forward / backward
+  - `Cmd+/`: toggle shortcut overlay
 
 ## App icon workflow
 
