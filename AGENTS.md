@@ -15,14 +15,13 @@ If I ever correct you, add the correction to `Feedback.md` so it never happens a
 - Prefer simple, legible UI and obvious interaction flows.
 - Make changes production-ready: formatting, linting, and tests/checks should pass.
 
-## UI direction (Apple-native feel)
+## UI direction
 
-- Design in a SwiftUI-like spirit: calm hierarchy, large touch targets, generous spacing.
-- Keep visual noise low. Avoid clutter, heavy gradients, and over-ornamented components.
-- Make titlebar/content feel unified.
-  - Prefer transparent/blur window setup.
-  - Avoid duplicate in-window fake title bars unless explicitly requested.
-- Keep typography clean and readable; use system defaults unless a project decision says otherwise.
+- Very CLI like a terminal, but in a hacky kind of cool way.
+- Keyboard shortcuts for everything.
+- ASCII art is nice
+- Beautiful, easy to use, hacker
+- Center the UI, it should always look good regardless of window width
 
 ## Iconography
 
