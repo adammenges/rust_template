@@ -6,6 +6,9 @@ These instructions are for coding agents working in this repository (Codex, Clau
 
 Build clean, modern macOS desktop apps in Rust with `iced`, while keeping behavior and visuals aligned with the Apple ecosystem.
 
+## Feedback Loop
+If I ever correct you, add the correction to `Feedback.md` so it never happens again.
+
 ## Non-negotiables
 
 - Keep this template macOS-first.
