@@ -2,18 +2,17 @@
 
 These instructions are for coding agents working in this repository (Codex, Claude Code, Qodo, Cursor, etc.).
 
+## Feedback Loop
+
+If I ever correct you, add the correction to `FEEDBACK.md` so it never happens again.
+
 ## Mission
 
 Build clean, modern macOS desktop apps in Rust with `iced`, while keeping behavior and visuals aligned with the Apple ecosystem.
 
-## Feedback Loop
-If I ever correct you, add the correction to `FEEDBACK.md` so it never happens again.
-
 ## Non-negotiables
 
-- Keep this template macOS-first.
 - Prefer simple, legible UI and obvious interaction flows.
-- Make changes production-ready: formatting, linting, and tests/checks should pass.
 
 ## UI direction
 
@@ -28,7 +27,6 @@ If I ever correct you, add the correction to `FEEDBACK.md` so it never happens a
 - Prefer SF Symbols for in-app iconography.
 - Store symbol exports in `assets/symbols/` (typically SVG).
 - Keep icon weights and sizes consistent within a screen.
-- App icon source of truth is `assets/icons/AppIcon-1024.png`.
 
 ## Build and packaging expectations
 
