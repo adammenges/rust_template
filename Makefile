@@ -14,4 +14,4 @@ build-app:
 
 clean:
 	cargo clean
-	rm -rf dist
+	rm -rf dist src-tauri/target

@@ -1,13 +1,14 @@
-# Rust macOS `iced` Template
+# Rust macOS Tauri Template
 
-A GitHub template repository for building modern macOS desktop apps in Rust with [`iced`](https://github.com/iced-rs/iced).
+A GitHub template repository for building modern macOS desktop apps in Rust with [Tauri](https://tauri.app).
 
 ## What you get
 
-- `iced` starter UI with a centered terminal-style shell (ASCII banner + command deck)
+- Tauri v2 starter app with a terminal-style shell UI (ASCII banner + command deck)
 - keyboard-first controls (global shortcuts + focus cycling)
-- macOS `.app` bundling script
-- icon pipeline (`AppIcon-1024.png` -> `AppIcon.icns`)
+- static HTML/CSS/JS frontend (no Node.js or bundler required)
+- macOS `.app` bundling via `cargo tauri build`
+- icon pipeline (`AppIcon-1024.png` -> bundled `.icns`)
 - default icon generator using SF Symbols (if no icon is provided)
 - setup/dev/check scripts + `Makefile`
 - CI workflow on macOS
@@ -38,18 +39,10 @@ GitHub reference: [Creating a repository from a template](https://docs.github.co
 
 ```bash
 ./scripts/build_macos_app.sh
-open dist/macos_iced_template.app
+open dist/macos_tauri_template.app
 ```
 
-Optional overrides:
-
-```bash
-APP_NAME="My App" \
-APP_EXECUTABLE="macos_iced_template" \
-APP_BUNDLE_ID="com.example.myapp" \
-UNIVERSAL=1 \
-./scripts/build_macos_app.sh
-```
+Configure the app name, bundle identifier, and window settings in `src-tauri/tauri.conf.json`.
 
 ## Default UI behavior
 
@@ -67,7 +60,7 @@ UNIVERSAL=1 \
 
 1. Put a **1024x1024 PNG** at `assets/icons/AppIcon-1024.png`.
 2. Build your app bundle with `./scripts/build_macos_app.sh`.
-3. The script automatically generates `assets/icons/AppIcon.icns` and embeds it into the `.app`.
+3. Tauri automatically generates the `.icns` and embeds it into the `.app`.
 
 If no icon is found, the build script tries this fallback chain:
 
@@ -76,9 +69,12 @@ If no icon is found, the build script tries this fallback chain:
 
 ## Project structure
 
-- `src/main.rs`: main `iced` app shell
+- `src-tauri/src/lib.rs`: Tauri backend commands
+- `src-tauri/src/main.rs`: application entry point
+- `src-tauri/tauri.conf.json`: Tauri configuration (window, bundle, permissions)
+- `ui/`: static frontend (HTML, CSS, JS)
 - `scripts/`: setup, checks, icon conversion, `.app` bundling
-- `assets/icons/`: app icon source and generated `.icns`
+- `assets/icons/`: app icon source
 - `assets/symbols/`: SF Symbol exports for in-app icon assets
 - `.github/workflows/ci.yml`: macOS CI
 - `AGENTS.md`: agent coding and design guidance
