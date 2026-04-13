@@ -8,7 +8,7 @@ If I ever correct you, add the correction to `FEEDBACK.md` so it never happens a
 
 ## Mission
 
-Build clean, modern macOS desktop apps in Rust with `iced`, while keeping behavior and visuals aligned with the Apple ecosystem.
+Build clean, modern macOS desktop apps in Rust with Tauri, while keeping behavior and visuals aligned with the Apple ecosystem.
 
 ## Non-negotiables
 
@@ -22,6 +22,13 @@ Build clean, modern macOS desktop apps in Rust with `iced`, while keeping behavi
 - Beautiful, easy to use, hacker
 - Center the UI, it should always look good regardless of window width
 
+## Architecture
+
+- Backend: Rust via Tauri v2 (`src-tauri/`)
+- Frontend: static HTML/CSS/JS (`ui/`) — no Node.js or bundler required
+- IPC: Tauri commands (`#[tauri::command]`) invoked from JS via `window.__TAURI__.core.invoke()`
+- Configuration: `src-tauri/tauri.conf.json`
+
 ## Iconography
 
 - Prefer SF Symbols for in-app iconography.
@@ -30,10 +37,10 @@ Build clean, modern macOS desktop apps in Rust with `iced`, while keeping behavi
 
 ## Build and packaging expectations
 
-- `.app` bundles are created with `scripts/build_macos_app.sh`.
+- `.app` bundles are created with `cargo tauri build` (wrapped by `scripts/build_macos_app.sh`).
 - Icon generation pipeline:
   - `assets/icons/AppIcon-1024.png`
-  - `scripts/make_icns.sh` -> `assets/icons/AppIcon.icns`
+  - Tauri auto-generates `.icns` during build
   - bundle embeds `Contents/Resources/AppIcon.icns`
 - If icon source is missing, fallback chain is:
   - `scripts/generate_default_icon.swift`
@@ -52,4 +59,4 @@ Build clean, modern macOS desktop apps in Rust with `iced`, while keeping behavi
 - Keep README/docs in sync with behavior.
 - Keep scripts executable and cross-shell safe (`bash`, `set -euo pipefail`).
 - Validate macOS packaging still works after refactors.
-- Do not add unrelated frameworks for UI when `iced` can solve it.
+- Frontend changes go in `ui/`, backend changes go in `src-tauri/src/`.
