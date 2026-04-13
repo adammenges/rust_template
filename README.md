@@ -76,7 +76,7 @@ All app settings live in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json
 | `productName` | App name in the menu bar and `.app` bundle |
 | `identifier` | macOS bundle identifier (e.g. `com.example.myapp`) |
 | `app.windows` | Window size, title, transparency, decorations |
-| `bundle.icon` | Path to the 1024x1024 source icon |
+| `bundle.icon` | Paths to generated icon files in `src-tauri/icons/` |
 | `bundle.macOS.minimumSystemVersion` | Minimum macOS version |
 
 ## Keyboard Shortcuts
@@ -93,8 +93,8 @@ All app settings live in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json
 ## App Icon
 
 1. Place a **1024x1024 PNG** at `assets/icons/AppIcon-1024.png`
-2. Run `make build-app`
-3. Tauri generates the `.icns` and embeds it automatically
+2. Run `cargo tauri icon assets/icons/AppIcon-1024.png` to generate all required sizes into `src-tauri/icons/`
+3. Run `make build-app` -- Tauri picks up the generated icons and bundles the `.icns`
 
 Fallback if no icon exists: `scripts/generate_default_icon.swift` creates one from SF Symbols, or the macOS generic app icon is extracted.
 
