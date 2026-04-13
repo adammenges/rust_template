@@ -8,6 +8,12 @@ fi
 
 rustup component add rustfmt clippy
 
+# Install Tauri CLI if not present
+if ! cargo tauri --version >/dev/null 2>&1; then
+  echo "Installing Tauri CLI..."
+  cargo install tauri-cli
+fi
+
 if [[ "${OSTYPE:-}" == darwin* ]]; then
   if ! xcode-select -p >/dev/null 2>&1; then
     echo "Xcode Command Line Tools are required. Run: xcode-select --install"

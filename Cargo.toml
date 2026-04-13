@@ -1,13 +1,6 @@
-[package]
-name = "macos_iced_template"
-version = "0.1.0"
-edition = "2024"
-description = "GitHub template for modern macOS desktop apps built in Rust with iced"
-license = "MIT"
-readme = "README.md"
-
-[dependencies]
-iced = { version = "0.14", features = ["image", "svg"] }
+[workspace]
+members = ["src-tauri"]
+resolver = "2"
 
 [profile.release]
 codegen-units = 1

@@ -16,6 +16,9 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
@@ -29,4 +32,4 @@ jobs:
         run: cargo test --all-features
 
       - name: Build .app bundle
-        run: ./scripts/build_macos_app.sh
+        run: cargo tauri build
