@@ -1,90 +1,136 @@
-# Rust macOS Tauri Template
+# Rust + Tauri macOS Template
 
-A GitHub template repository for building modern macOS desktop apps in Rust with [Tauri](https://tauri.app).
+A GitHub template for building native macOS desktop apps with Rust and [Tauri v2](https://v2.tauri.app). No Node.js, no bundler -- just Rust, HTML, CSS, and JS.
 
-## What you get
+## Features
 
-- Tauri v2 starter app with a terminal-style shell UI (ASCII banner + command deck)
-- keyboard-first controls (global shortcuts + focus cycling)
-- static HTML/CSS/JS frontend (no Node.js or bundler required)
-- macOS `.app` bundling via `cargo tauri build`
-- icon pipeline (`AppIcon-1024.png` -> bundled `.icns`)
-- default icon generator using SF Symbols (if no icon is provided)
-- setup/dev/check scripts + `Makefile`
-- CI workflow on macOS
-- `AGENTS.md` instructions for Codex/Claude/Qodo-style coding agents
+- **Tauri v2** with capability-based permissions and IPC
+- **Static frontend** -- vanilla HTML/CSS/JS in `ui/`, no build step
+- **Terminal-style UI** -- ASCII banner, command deck, dark theme
+- **Keyboard-first** -- global shortcuts for every action
+- **macOS `.app` bundling** via `cargo tauri build`
+- **Icon pipeline** -- drop in a 1024x1024 PNG, get a bundled `.icns`
+- **CI** -- GitHub Actions workflow for fmt, clippy, test, and build
+- **Agent-ready** -- `AGENTS.md` with instructions for Codex, Claude Code, Cursor, etc.
 
-## Use as a GitHub template
+## Prerequisites
 
-1. Push this repository to GitHub.
-2. In GitHub, open **Settings -> General -> Template repository** and enable it.
-3. Click **Use this template** to create a new app repo.
+- macOS 13.0+
+- [Rust](https://rustup.rs) (stable)
+- Xcode Command Line Tools (`xcode-select --install`)
 
-GitHub reference: [Creating a repository from a template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
-
-## Quick start
+## Quick Start
 
 ```bash
-./scripts/setup.sh
-./scripts/dev.sh
-```
-
-### Quality checks
-
-```bash
-./scripts/check.sh
-```
-
-### Build a macOS app bundle
-
-```bash
-./scripts/build_macos_app.sh
-open dist/macos_tauri_template.app
-```
-
-Configure the app name, bundle identifier, and window settings in `src-tauri/tauri.conf.json`.
-
-## Default UI behavior
-
-- Layout stays centered and adapts components for narrow or wide window sizes.
-- The shell uses a CLI-inspired visual style with command output and script previews.
-- Keyboard shortcuts are wired for every primary action:
-  - `Cmd+R`: show check command
-  - `Cmd+B`: show build command with current `APP_NAME` + `APP_BUNDLE_ID`
-  - `Cmd+K`: reset fields
-  - `Cmd+1` / `Cmd+2`: focus app name / bundle ID
-  - `Tab` / `Shift+Tab`: move focus forward / backward
-  - `Cmd+/`: toggle shortcut overlay
-
-## App icon workflow
-
-1. Put a **1024x1024 PNG** at `assets/icons/AppIcon-1024.png`.
-2. Build your app bundle with `./scripts/build_macos_app.sh`.
-3. Tauri automatically generates the `.icns` and embeds it into the `.app`.
-
-If no icon is found, the build script tries this fallback chain:
-
-1. `scripts/generate_default_icon.swift` (SF Symbols-based icon)
-2. macOS generic app icon extraction from `GenericApplicationIcon.icns`
-
-## Project structure
-
-- `src-tauri/src/lib.rs`: Tauri backend commands
-- `src-tauri/src/main.rs`: application entry point
-- `src-tauri/tauri.conf.json`: Tauri configuration (window, bundle, permissions)
-- `ui/`: static frontend (HTML, CSS, JS)
-- `scripts/`: setup, checks, icon conversion, `.app` bundling
-- `assets/icons/`: app icon source
-- `assets/symbols/`: SF Symbol exports for in-app icon assets
-- `.github/workflows/ci.yml`: macOS CI
-- `AGENTS.md`: agent coding and design guidance
-
-## Make targets
-
-```bash
+# Install toolchain + Tauri CLI
 make setup
+
+# Run in dev mode (hot reload)
 make dev
+
+# Lint, format, test
 make check
+
+# Build a production .app bundle
 make build-app
-make clean
 ```
+
+The built `.app` lands in `dist/`.
+
+## Use as a GitHub Template
+
+1. Push this repo to GitHub
+2. **Settings > General > Template repository** -- enable it
+3. Click **Use this template** to scaffold a new app
+
+See [Creating a repository from a template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+
+## Project Structure
+
+```
+src-tauri/
+  src/lib.rs          Tauri commands (Rust backend)
+  src/main.rs         Entry point
+  tauri.conf.json     App config (window, bundle, permissions)
+  capabilities/       Tauri v2 permission grants
+ui/
+  index.html          App shell
+  main.js             Frontend logic + IPC via window.__TAURI__
+  style.css           Dark terminal theme
+scripts/
+  setup.sh            Install toolchain + Tauri CLI
+  dev.sh              cargo tauri dev
+  check.sh            fmt + clippy + test
+  build_macos_app.sh  cargo tauri build + copy to dist/
+assets/
+  icons/              App icon source (1024x1024 PNG)
+  symbols/            SF Symbol exports for in-app icons
+```
+
+## Configuration
+
+All app settings live in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json):
+
+| Field | Purpose |
+|---|---|
+| `productName` | App name in the menu bar and `.app` bundle |
+| `identifier` | macOS bundle identifier (e.g. `com.example.myapp`) |
+| `app.windows` | Window size, title, transparency, decorations |
+| `bundle.icon` | Path to the 1024x1024 source icon |
+| `bundle.macOS.minimumSystemVersion` | Minimum macOS version |
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Cmd+R` | Run checks |
+| `Cmd+B` | Show build command |
+| `Cmd+K` | Reset fields |
+| `Cmd+1` / `Cmd+2` | Focus APP_NAME / APP_BUNDLE_ID |
+| `Tab` / `Shift+Tab` | Cycle focus |
+| `Cmd+/` | Toggle shortcut overlay |
+
+## App Icon
+
+1. Place a **1024x1024 PNG** at `assets/icons/AppIcon-1024.png`
+2. Run `make build-app`
+3. Tauri generates the `.icns` and embeds it automatically
+
+Fallback if no icon exists: `scripts/generate_default_icon.swift` creates one from SF Symbols, or the macOS generic app icon is extracted.
+
+## Make Targets
+
+| Target | Command |
+|---|---|
+| `make setup` | Install Rust toolchain, Tauri CLI, macOS targets |
+| `make dev` | Start dev server with hot reload |
+| `make check` | Run fmt, clippy, and tests |
+| `make build-app` | Build production `.app` bundle |
+| `make clean` | Remove `target/` and `dist/` |
+
+## Architecture
+
+```
+Frontend (ui/)              Backend (src-tauri/)
+ index.html                  lib.rs
+ main.js ──invoke()──────▶  #[tauri::command] fn
+          ◀── return ─────  get_build_command()
+                             get_check_command()
+```
+
+IPC uses Tauri's `window.__TAURI__.core.invoke()` (enabled by `withGlobalTauri: true` in config). The frontend has no build step -- Tauri serves static files directly from `ui/`.
+
+## CI
+
+The GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and PR:
+
+1. `cargo fmt --check`
+2. `cargo clippy -- -D warnings`
+3. `cargo test`
+4. `cargo tauri build`
+
+Runs on `macos-latest` with Rust stable.
+
+## License
+
+MIT
