@@ -1,135 +1,158 @@
-const { invoke } = window.__TAURI__.core;
+const DEFAULTS = Object.freeze({
+    appName: "My Mac App",
+    bundleId: "com.example.my-mac-app",
+});
 
+const invoke = window.__TAURI__?.core?.invoke;
 const appNameInput = document.getElementById("app-name");
 const bundleIdInput = document.getElementById("bundle-id");
+const configForm = document.getElementById("config-form");
 const statusEl = document.getElementById("status");
+const statusDot = document.getElementById("status-dot");
 const commandDeck = document.getElementById("command-deck");
-const shortcutsPanel = document.getElementById("shortcuts-panel");
+const shortcutsDialog = document.getElementById("shortcuts-dialog");
 const btnCheck = document.getElementById("btn-check");
 const btnBuild = document.getElementById("btn-build");
 const btnReset = document.getElementById("btn-reset");
-const bannerEl = document.getElementById("banner");
+const btnCopy = document.getElementById("btn-copy");
+const btnShortcuts = document.getElementById("btn-shortcuts");
+const btnCloseShortcuts = document.getElementById("btn-close-shortcuts");
 
-let showShortcuts = true;
+let lastCommand = "";
 
-const BANNER_WIDE = [
-    "  ____           __",
-    " |  _ \\ _   _ ___/ /_",
-    " | |_) | | | / __  /",
-    " |  _ <| |_| / /_/ /",
-    " |_| \\_\\\\__,_\\\\__,_/",
-].join("\n");
-
-const BANNER_COMPACT = [
-    " __  __  ___",
-    "|  \\/  |/ _ \\",
-    "| |\\/| | | | |",
-    "|  | | |_| |",
-    "|_|  |_|\\___/",
-].join("\n");
-
-function updateBanner() {
-    bannerEl.textContent =
-        window.innerWidth < 920 ? BANNER_COMPACT : BANNER_WIDE;
+function setStatus(message, state = "ready") {
+    statusEl.textContent = message;
+    statusDot.dataset.state = state;
 }
 
-function updateCommandDeck() {
+function showCommand(preview) {
+    lastCommand = preview.command;
+    commandDeck.textContent = preview.command;
+    btnCopy.disabled = false;
+    setStatus(preview.summary, "success");
+}
+
+function setBusy(isBusy) {
+    btnCheck.disabled = isBusy;
+    btnBuild.disabled = isBusy || !configForm.checkValidity();
+    if (isBusy) setStatus("Requesting a command preview from Rust…", "busy");
+}
+
+function validateForm() {
     const appName = appNameInput.value.trim();
     const bundleId = bundleIdInput.value.trim();
-    commandDeck.textContent =
-        `$ ./scripts/dev.sh\n$ ./scripts/check.sh\n$ APP_NAME="${appName}" APP_BUNDLE_ID="${bundleId}" ./scripts/build_macos_app.sh`;
+    const appNameIsValid = /^[A-Za-z0-9](?:[A-Za-z0-9 ._-]{0,62}[A-Za-z0-9])?$/.test(appName);
+    const bundleIdIsValid = bundleId.length <= 255
+        && bundleId.split(".").length >= 2
+        && bundleId.split(".").every((part) => /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(part));
+
+    appNameInput.setCustomValidity(appNameIsValid ? "" : "Enter a valid app name.");
+    bundleIdInput.setCustomValidity(bundleIdIsValid ? "" : "Enter a reverse-DNS bundle ID.");
+    btnBuild.disabled = !configForm.checkValidity();
 }
 
-function setStatus(msg) {
-    statusEl.textContent = msg;
+async function requestPreview(command, arguments_ = {}) {
+    if (!invoke) {
+        setStatus("Browser preview mode. Run ./scripts/dev.sh to connect the Rust backend.", "warning");
+        return;
+    }
+
+    setBusy(true);
+    try {
+        showCommand(await invoke(command, arguments_));
+    } catch (error) {
+        setStatus(String(error), "error");
+    } finally {
+        setBusy(false);
+    }
 }
 
-async function runChecks() {
-    const result = await invoke("get_check_command");
-    setStatus(result);
+function previewChecks() {
+    return requestPreview("get_check_command");
 }
 
-async function buildApp() {
-    const result = await invoke("get_build_command", {
+function previewBuild() {
+    validateForm();
+    if (!configForm.reportValidity()) return;
+
+    return requestPreview("get_build_command", {
         appName: appNameInput.value,
         bundleId: bundleIdInput.value,
     });
-    setStatus(result);
 }
 
 function resetAll() {
-    appNameInput.value = "MyMacApp";
-    bundleIdInput.value = "com.example.mymacapp";
-    setStatus("Ready. Cmd+R runs checks, Cmd+B prints the build command.");
-    updateCommandDeck();
+    appNameInput.value = DEFAULTS.appName;
+    bundleIdInput.value = DEFAULTS.bundleId;
+    lastCommand = "";
+    commandDeck.textContent = "$ _";
+    btnCopy.disabled = true;
+    validateForm();
+    setStatus("Configuration reset to template defaults.", "ready");
     appNameInput.focus();
     appNameInput.select();
 }
 
 function toggleShortcuts() {
-    showShortcuts = !showShortcuts;
-    shortcutsPanel.style.display = showShortcuts ? "flex" : "none";
-    setStatus(
-        showShortcuts
-            ? "Shortcut overlay enabled. Cmd+/ hides it."
-            : "Shortcut overlay hidden. Cmd+/ shows it.",
-    );
+    if (shortcutsDialog.open) {
+        shortcutsDialog.close();
+    } else {
+        shortcutsDialog.showModal();
+    }
 }
 
-btnCheck.addEventListener("click", runChecks);
-btnBuild.addEventListener("click", buildApp);
+async function copyCommand() {
+    if (!lastCommand) return;
+
+    try {
+        await navigator.clipboard.writeText(lastCommand.replace(/^\$ /, ""));
+        setStatus("Command copied to the clipboard.", "success");
+        btnCopy.textContent = "copied";
+        window.setTimeout(() => { btnCopy.textContent = "copy"; }, 1200);
+    } catch {
+        setStatus("Clipboard access failed. Select the command and copy it manually.", "error");
+        commandDeck.focus();
+        window.getSelection()?.selectAllChildren(commandDeck);
+    }
+}
+
+btnCheck.addEventListener("click", previewChecks);
+btnBuild.addEventListener("click", previewBuild);
 btnReset.addEventListener("click", resetAll);
+btnCopy.addEventListener("click", copyCommand);
+btnShortcuts.addEventListener("click", toggleShortcuts);
+btnCloseShortcuts.addEventListener("click", () => shortcutsDialog.close());
 
-appNameInput.addEventListener("input", () => {
-    setStatus(`APP_NAME set to "${appNameInput.value}".`);
-    updateCommandDeck();
+for (const input of [appNameInput, bundleIdInput]) {
+    input.addEventListener("input", () => {
+        validateForm();
+        setStatus("Configuration changed. Preview the build to generate a command.", "ready");
+    });
+}
+
+shortcutsDialog.addEventListener("click", (event) => {
+    if (event.target === shortcutsDialog) shortcutsDialog.close();
 });
 
-bundleIdInput.addEventListener("input", () => {
-    setStatus(`APP_BUNDLE_ID set to "${bundleIdInput.value}".`);
-    updateCommandDeck();
-});
+document.addEventListener("keydown", (event) => {
+    if (!event.metaKey) return;
 
-document.addEventListener("keydown", (e) => {
-    const isMeta = e.metaKey;
+    const shortcuts = {
+        "1": () => { appNameInput.focus(); appNameInput.select(); },
+        "2": () => { bundleIdInput.focus(); bundleIdInput.select(); },
+        "/": toggleShortcuts,
+        "r": previewChecks,
+        "b": previewBuild,
+        "k": resetAll,
+    };
+    const action = shortcuts[event.key.toLowerCase()];
 
-    if (!isMeta) return;
-
-    switch (e.key) {
-        case "1":
-            e.preventDefault();
-            appNameInput.focus();
-            appNameInput.select();
-            setStatus("Focus: APP_NAME field.");
-            break;
-        case "2":
-            e.preventDefault();
-            bundleIdInput.focus();
-            bundleIdInput.select();
-            setStatus("Focus: APP_BUNDLE_ID field.");
-            break;
-        case "/":
-            e.preventDefault();
-            toggleShortcuts();
-            break;
-        case "r":
-        case "R":
-            e.preventDefault();
-            runChecks();
-            break;
-        case "b":
-        case "B":
-            e.preventDefault();
-            buildApp();
-            break;
-        case "k":
-        case "K":
-            e.preventDefault();
-            resetAll();
-            break;
+    if (action) {
+        event.preventDefault();
+        action();
     }
 });
 
-window.addEventListener("resize", updateBanner);
-updateBanner();
-updateCommandDeck();
+validateForm();
+commandDeck.textContent = "$ _";
+if (!invoke) setStatus("Browser preview mode. Run ./scripts/dev.sh to connect the Rust backend.", "warning");

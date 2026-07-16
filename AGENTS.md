@@ -17,10 +17,10 @@ Build clean, modern macOS desktop apps in Rust with Tauri, while keeping behavio
 ## UI direction
 
 - Very CLI like a terminal, but in a hacky kind of cool way.
-- Keyboard shortcuts for everything.
-- ASCII art is nice
-- Beautiful, easy to use, hacker
-- Center the UI, it should always look good regardless of window width
+- Keyboard shortcuts for every primary action.
+- ASCII art is welcome when it remains accessible and responsive.
+- Aim for beautiful, easy to use, and hacker-oriented.
+- Center the UI and make it adapt cleanly at every supported window width.
 
 ## Architecture
 
@@ -40,11 +40,11 @@ Build clean, modern macOS desktop apps in Rust with Tauri, while keeping behavio
 - `.app` bundles are created with `cargo tauri build` (wrapped by `scripts/build_macos_app.sh`).
 - Icon generation pipeline:
   - `assets/icons/AppIcon-1024.png`
-  - Tauri auto-generates `.icns` during build
-  - bundle embeds `Contents/Resources/AppIcon.icns`
+  - `cargo tauri icon` generates the platform icon set in `src-tauri/icons/`
+  - the bundle embeds `Contents/Resources/icon.icns`
 - If icon source is missing, fallback chain is:
   - `scripts/generate_default_icon.swift`
-  - macOS `GenericApplicationIcon.icns` extraction
+  - existing `src-tauri/icons/icon.png`
 
 ## Commands agents should run
 
@@ -52,6 +52,7 @@ Build clean, modern macOS desktop apps in Rust with Tauri, while keeping behavio
 ./scripts/dev.sh
 ./scripts/check.sh
 ./scripts/build_macos_app.sh
+./scripts/doctor.sh
 ```
 
 ## Change checklist
