@@ -22,7 +22,68 @@ A GitHub template for building native macOS desktop apps with Rust and [Tauri v2
 ## Quick Start
 
 ```bash
-# Install toolchain + Tauri CLI
+./scripts/setup.sh
+./scripts/dev.sh
+```
+
+### Quality checks
+
+```bash
+./scripts/check.sh
+```
+
+### Build a macOS app bundle
+
+```bash
+./scripts/build_macos_app.sh
+open "dist/Macos Iced Template.app"
+```
+
+Optional overrides:
+
+```bash
+APP_NAME="My App" \
+APP_EXECUTABLE="macos_iced_template" \
+APP_BUNDLE_ID="com.example.myapp" \
+UNIVERSAL=1 \
+./scripts/build_macos_app.sh
+```
+
+## Default UI behavior
+
+- Layout stays centered and adapts components for narrow or wide window sizes.
+- The shell uses a CLI-inspired visual style with command output and script previews.
+- Keyboard shortcuts are wired for every primary action:
+  - `Cmd+R`: show check command
+  - `Cmd+B`: show build command with current `APP_NAME` + `APP_BUNDLE_ID`
+  - `Cmd+K`: reset fields
+  - `Cmd+1` / `Cmd+2`: focus app name / bundle ID
+  - `Tab` / `Shift+Tab`: move focus forward / backward
+  - `Cmd+/`: toggle shortcut overlay
+
+## App icon workflow
+
+1. Put a **1024x1024 PNG** at `assets/icons/AppIcon-1024.png`.
+2. Build your app bundle with `./scripts/build_macos_app.sh`.
+3. The script automatically generates `assets/icons/AppIcon.icns` and embeds it into the `.app`.
+
+If no icon is found, the build script tries this fallback chain:
+
+1. `scripts/generate_default_icon.swift` (SF Symbols-based icon)
+2. macOS generic app icon extraction from `GenericApplicationIcon.icns`
+
+## Project structure
+
+- `src/main.rs`: main `iced` app shell
+- `scripts/`: setup, checks, icon conversion, `.app` bundling
+- `assets/icons/`: app icon source and generated `.icns`
+- `assets/symbols/`: SF Symbol exports for in-app icon assets
+- `.github/workflows/ci.yml`: macOS CI
+- `AGENTS.md`: agent coding and design guidance
+
+## Make targets
+
+```bash
 make setup
 
 # Run in dev mode (hot reload)
@@ -71,24 +132,24 @@ assets/
 
 All app settings live in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json):
 
-| Field | Purpose |
-|---|---|
-| `productName` | App name in the menu bar and `.app` bundle |
-| `identifier` | macOS bundle identifier (e.g. `com.example.myapp`) |
-| `app.windows` | Window size, title, transparency, decorations |
-| `bundle.icon` | Paths to generated icon files in `src-tauri/icons/` |
-| `bundle.macOS.minimumSystemVersion` | Minimum macOS version |
+| Field                               | Purpose                                             |
+| ----------------------------------- | --------------------------------------------------- |
+| `productName`                       | App name in the menu bar and `.app` bundle          |
+| `identifier`                        | macOS bundle identifier (e.g. `com.example.myapp`)  |
+| `app.windows`                       | Window size, title, transparency, decorations       |
+| `bundle.icon`                       | Paths to generated icon files in `src-tauri/icons/` |
+| `bundle.macOS.minimumSystemVersion` | Minimum macOS version                               |
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|---|---|
-| `Cmd+R` | Run checks |
-| `Cmd+B` | Show build command |
-| `Cmd+K` | Reset fields |
-| `Cmd+1` / `Cmd+2` | Focus APP_NAME / APP_BUNDLE_ID |
-| `Tab` / `Shift+Tab` | Cycle focus |
-| `Cmd+/` | Toggle shortcut overlay |
+| Shortcut            | Action                         |
+| ------------------- | ------------------------------ |
+| `Cmd+R`             | Run checks                     |
+| `Cmd+B`             | Show build command             |
+| `Cmd+K`             | Reset fields                   |
+| `Cmd+1` / `Cmd+2`   | Focus APP_NAME / APP_BUNDLE_ID |
+| `Tab` / `Shift+Tab` | Cycle focus                    |
+| `Cmd+/`             | Toggle shortcut overlay        |
 
 ## App Icon
 
@@ -100,13 +161,13 @@ Fallback if no icon exists: `scripts/generate_default_icon.swift` creates one fr
 
 ## Make Targets
 
-| Target | Command |
-|---|---|
-| `make setup` | Install Rust toolchain, Tauri CLI, macOS targets |
-| `make dev` | Start dev server with hot reload |
-| `make check` | Run fmt, clippy, and tests |
-| `make build-app` | Build production `.app` bundle |
-| `make clean` | Remove `target/` and `dist/` |
+| Target           | Command                                          |
+| ---------------- | ------------------------------------------------ |
+| `make setup`     | Install Rust toolchain, Tauri CLI, macOS targets |
+| `make dev`       | Start dev server with hot reload                 |
+| `make check`     | Run fmt, clippy, and tests                       |
+| `make build-app` | Build production `.app` bundle                   |
+| `make clean`     | Remove `target/` and `dist/`                     |
 
 ## Architecture
 
