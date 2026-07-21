@@ -10,7 +10,7 @@ help:
 	@echo "  make dev        Launch the app with hot reload"
 	@echo "  make check      Run syntax checks, formatting, Clippy, and tests"
 	@echo "  make icons      Regenerate platform icons from the source PNG"
-	@echo "  make build-app  Build and verify a release .app in dist/"
+	@echo "  make build-app  Build and verify an ARM64 release .app in dist/"
 	@echo "  make clean      Remove generated build output"
 
 setup:

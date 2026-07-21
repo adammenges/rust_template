@@ -4,6 +4,8 @@ const DEFAULTS = Object.freeze({
 });
 
 const invoke = window.__TAURI__?.core?.invoke;
+const appWindow = window.__TAURI__?.window?.getCurrentWindow?.();
+const titlebar = document.getElementById("titlebar");
 const appNameInput = document.getElementById("app-name");
 const bundleIdInput = document.getElementById("bundle-id");
 const configForm = document.getElementById("config-form");
@@ -19,6 +21,15 @@ const btnShortcuts = document.getElementById("btn-shortcuts");
 const btnCloseShortcuts = document.getElementById("btn-close-shortcuts");
 
 let lastCommand = "";
+
+function startWindowDrag(event) {
+    if (!appWindow || event.button !== 0) return;
+
+    event.preventDefault();
+    appWindow.startDragging().catch((error) => {
+        console.error("Unable to start window drag:", error);
+    });
+}
 
 function setStatus(message, state = "ready") {
     statusEl.textContent = message;
@@ -122,6 +133,7 @@ btnReset.addEventListener("click", resetAll);
 btnCopy.addEventListener("click", copyCommand);
 btnShortcuts.addEventListener("click", toggleShortcuts);
 btnCloseShortcuts.addEventListener("click", () => shortcutsDialog.close());
+titlebar.addEventListener("mousedown", startWindowDrag);
 
 for (const input of [appNameInput, bundleIdInput]) {
     input.addEventListener("input", () => {

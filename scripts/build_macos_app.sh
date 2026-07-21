@@ -4,13 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 export LC_ALL=C
+MACOS_TARGET="aarch64-apple-darwin"
 
 if [[ "${OSTYPE:-}" != darwin* ]]; then
   echo "error: macOS app bundles must be built on macOS." >&2
   exit 1
 fi
 
-for command in cargo codesign xcode-select; do
+for command in cargo codesign lipo rustup xcode-select; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "error: $command is required." >&2
     exit 1
@@ -24,6 +25,11 @@ fi
 
 if ! cargo tauri --version >/dev/null 2>&1; then
   echo "error: Tauri CLI is required. Run: ./scripts/setup.sh" >&2
+  exit 1
+fi
+
+if ! rustup target list --installed --toolchain 1.95.0 | grep -qx "$MACOS_TARGET"; then
+  echo "error: $MACOS_TARGET is required. Run: ./scripts/setup.sh" >&2
   exit 1
 fi
 
@@ -51,7 +57,6 @@ APP_BUNDLE_ID="${APP_BUNDLE_ID:-$DEFAULT_BUNDLE_ID}"
 APP_VERSION="${APP_VERSION:-$DEFAULT_VERSION}"
 ICON_SOURCE="${ICON_SOURCE:-assets/icons/AppIcon-1024.png}"
 DIST_DIR="${DIST_DIR:-dist}"
-UNIVERSAL="${UNIVERSAL:-0}"
 FORCE_ICONS="${FORCE_ICONS:-0}"
 
 if [[ ! "$APP_NAME" =~ ^[[:alnum:]][[:alnum:]\ ._-]{0,62}[[:alnum:]]$ && ! "$APP_NAME" =~ ^[[:alnum:]]$ ]]; then
@@ -79,11 +84,6 @@ fi
 
 if [[ ! "$APP_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
   echo "error: APP_VERSION must be a semantic version such as 1.2.3." >&2
-  exit 1
-fi
-
-if [[ "$UNIVERSAL" != "0" && "$UNIVERSAL" != "1" ]]; then
-  echo "error: UNIVERSAL must be 0 or 1." >&2
   exit 1
 fi
 
@@ -117,15 +117,10 @@ printf '%s\n' \
   "  \"identifier\": \"$APP_BUNDLE_ID\"" \
   '}' > "$OVERRIDE_CONFIG"
 
-build_args=(build --bundles app --ci --config "$OVERRIDE_CONFIG")
-if [[ "$UNIVERSAL" == "1" ]]; then
-  build_args+=(--target universal-apple-darwin)
-  BUNDLE_DIR="target/universal-apple-darwin/release/bundle/macos"
-else
-  BUNDLE_DIR="target/release/bundle/macos"
-fi
+build_args=(build --bundles app --ci --config "$OVERRIDE_CONFIG" --target "$MACOS_TARGET")
+BUNDLE_DIR="target/$MACOS_TARGET/release/bundle/macos"
 
-echo "Building $APP_NAME ($APP_BUNDLE_ID) v$APP_VERSION..."
+echo "Building $APP_NAME ($APP_BUNDLE_ID) v$APP_VERSION for Apple Silicon..."
 cargo tauri "${build_args[@]}" -- --locked
 
 APP_BUNDLE="$BUNDLE_DIR/$APP_NAME.app"
@@ -150,16 +145,23 @@ ACTUAL_VERSION="$(plutil -extract CFBundleShortVersionString raw "$INFO_PLIST")"
 ACTUAL_DISPLAY_NAME="$(plutil -extract CFBundleDisplayName raw "$INFO_PLIST")"
 ACTUAL_EXECUTABLE="$(plutil -extract CFBundleExecutable raw "$INFO_PLIST")"
 ACTUAL_ICON="$(plutil -extract CFBundleIconFile raw "$INFO_PLIST")"
+EXECUTABLE_PATH="$DESTINATION/Contents/MacOS/$ACTUAL_EXECUTABLE"
 
 if [[ "$ACTUAL_BUNDLE_ID" != "$APP_BUNDLE_ID" \
   || "$ACTUAL_VERSION" != "$APP_VERSION" \
   || "$ACTUAL_DISPLAY_NAME" != "$APP_NAME" \
-  || ! -x "$DESTINATION/Contents/MacOS/$ACTUAL_EXECUTABLE" \
+  || ! -x "$EXECUTABLE_PATH" \
   || ! -f "$DESTINATION/Contents/Resources/$ACTUAL_ICON" ]]; then
   echo "error: bundle metadata verification failed." >&2
   exit 1
 fi
 
+ACTUAL_ARCHITECTURES="$(lipo -archs "$EXECUTABLE_PATH")"
+if [[ "$ACTUAL_ARCHITECTURES" != "arm64" ]]; then
+  echo "error: expected an ARM64-only executable; found: $ACTUAL_ARCHITECTURES" >&2
+  exit 1
+fi
+
 codesign --verify --deep --strict "$DESTINATION"
 
-echo "Built and verified: $DESTINATION"
+echo "Built and verified ARM64 bundle: $DESTINATION"

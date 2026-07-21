@@ -28,6 +28,13 @@ if [[ "${OSTYPE:-}" == darwin* ]]; then
     printf 'miss  %-14s run: xcode-select --install\n' "xcode tools"
     status=1
   fi
+
+  if rustup target list --installed --toolchain 1.95.0 | grep -qx 'aarch64-apple-darwin'; then
+    printf 'ok    %-14s %s\n' "macOS target" "aarch64-apple-darwin"
+  else
+    printf 'miss  %-14s run: ./scripts/setup.sh\n' "macOS target"
+    status=1
+  fi
 fi
 
 if cargo tauri --version >/dev/null 2>&1; then

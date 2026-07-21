@@ -10,7 +10,7 @@ A small, production-minded starting point for native-feeling macOS apps built wi
 - Keyboard access for every primary action
 - Capability-based permissions, a restrictive content security policy, and frozen JavaScript prototypes
 - Reproducible Rust, Tauri CLI, and Cargo dependency versions
-- Icon generation, universal binary support, and verified `.app` packaging
+- Icon generation and verified Apple Silicon `.app` packaging
 - GitHub Actions checks, build artifact upload, and Dependabot updates
 - Agent instructions and a durable feedback loop
 
@@ -20,7 +20,7 @@ A small, production-minded starting point for native-feeling macOS apps built wi
 - [rustup](https://rustup.rs)
 - Xcode Command Line Tools (`xcode-select --install`)
 
-The repository pins Rust 1.95.0 and Tauri CLI 2.11.4. The setup script installs both Apple architectures so universal builds are available.
+The repository pins Rust 1.95.0 and Tauri CLI 2.11.4. Packaged apps explicitly target Apple Silicon (`aarch64-apple-darwin`) to keep artifacts smaller; Intel Macs are not supported.
 
 ## Start here
 
@@ -42,7 +42,7 @@ open "dist/Rust Tauri Template.app"
 
 `check.sh` validates shell and JavaScript syntax, checks Rust formatting, runs Clippy with warnings denied, and executes all tests.
 
-The build script generates icons when needed, runs a locked release build, copies the `.app` to `dist/`, applies an ad-hoc signature when no valid signing identity was used, and verifies its metadata, executable, icon, and signature.
+The build script generates icons when needed, runs a locked ARM64 release build, copies the `.app` to `dist/`, applies an ad-hoc signature when no valid signing identity was used, and verifies its metadata, executable architecture, icon, and signature.
 
 ### Customize a build
 
@@ -51,12 +51,6 @@ APP_NAME="My App" \
 APP_BUNDLE_ID="com.example.my-app" \
 APP_VERSION="1.2.3" \
 ./scripts/build_macos_app.sh
-```
-
-For a universal Apple Silicon + Intel bundle:
-
-```bash
-UNIVERSAL=1 ./scripts/build_macos_app.sh
 ```
 
 Additional build variables:
@@ -68,7 +62,6 @@ Additional build variables:
 | `APP_VERSION` | crate version | Bundle version |
 | `ICON_SOURCE` | `assets/icons/AppIcon-1024.png` | Square PNG or SVG icon source |
 | `DIST_DIR` | `dist` | Final bundle directory |
-| `UNIVERSAL` | `0` | Build both macOS architectures when set to `1` |
 | `FORCE_ICONS` | `0` | Regenerate every platform icon when set to `1` |
 
 ## Keyboard map
@@ -94,6 +87,7 @@ assets/icons/                Source app icon
 assets/symbols/              Exported SF Symbols for future screens
 scripts/                     Setup, checks, development, icons, packaging
 .github/workflows/ci.yml     macOS validation and bundle build
+.agents/skills/              Reusable repository-specific agent workflows
 AGENTS.md                    Coding-agent guidance
 FEEDBACK.md                  Persistent project-specific corrections
 ```
