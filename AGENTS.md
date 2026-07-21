@@ -38,6 +38,7 @@ Build clean, modern macOS desktop apps in Rust with Tauri, while keeping behavio
 ## Build and packaging expectations
 
 - `.app` bundles are created with `cargo tauri build` (wrapped by `scripts/build_macos_app.sh`).
+- macOS bundles target Apple Silicon only (`aarch64-apple-darwin`); do not add Intel or universal build paths.
 - Icon generation pipeline:
   - `assets/icons/AppIcon-1024.png`
   - `cargo tauri icon` generates the platform icon set in `src-tauri/icons/`
@@ -54,6 +55,19 @@ Build clean, modern macOS desktop apps in Rust with Tauri, while keeping behavio
 ./scripts/build_macos_app.sh
 ./scripts/doctor.sh
 ```
+
+## Repository skills
+
+Use the focused skills in `.agents/skills/` when their descriptions match the task:
+
+- `customize-tauri-app`
+- `implement-tauri-feature`
+- `design-terminal-ui`
+- `secure-tauri-capabilities`
+- `create-macos-app-icon`
+- `diagnose-macos-toolchain`
+- `verify-tauri-change`
+- `package-macos-app`
 
 ## Change checklist
 

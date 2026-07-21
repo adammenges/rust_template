@@ -25,7 +25,7 @@ if [[ "${OSTYPE:-}" == darwin* ]]; then
     exit 1
   fi
 
-  rustup target add aarch64-apple-darwin x86_64-apple-darwin --toolchain 1.95.0
+  rustup target add aarch64-apple-darwin --toolchain 1.95.0
 else
   echo "note: macOS packaging requires a macOS host."
 fi
