@@ -11,7 +11,7 @@ A small, production-minded starting point for native-feeling macOS apps built wi
 - Capability-based permissions, a restrictive content security policy, and frozen JavaScript prototypes
 - Reproducible Rust, Tauri CLI, and Cargo dependency versions
 - Icon generation and verified Apple Silicon `.app` packaging
-- GitHub Actions checks, build artifact upload, and Dependabot updates
+- Dependabot update configuration
 - Agent instructions and a durable feedback loop
 
 ## Requirements
@@ -86,7 +86,6 @@ src-tauri/capabilities/      Tauri permission grants
 assets/icons/                Source app icon
 assets/symbols/              Exported SF Symbols for future screens
 scripts/                     Setup, checks, development, icons, packaging
-.github/workflows/ci.yml     macOS validation and bundle build
 .agents/skills/              Reusable repository-specific agent workflows
 AGENTS.md                    Coding-agent guidance
 FEEDBACK.md                  Persistent project-specific corrections
@@ -121,7 +120,7 @@ Run `make check` and `make build-app` after renaming.
 
 ## Signing and distribution
 
-Local builds receive an ad-hoc signature suitable for development. Distribution outside your Mac additionally requires an Apple Developer certificate and notarization. Configure Tauri's macOS signing environment in CI or your release workflow; do not commit certificates or credentials.
+Local builds receive an ad-hoc signature suitable for development. Distribution outside your Mac additionally requires an Apple Developer certificate and notarization. Configure Tauri's macOS signing environment in your release workflow; do not commit certificates or credentials.
 
 ## Use as a GitHub template
 
