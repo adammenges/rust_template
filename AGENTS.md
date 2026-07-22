@@ -68,6 +68,8 @@ Use the focused skills in `.agents/skills/` when their descriptions match the ta
 - `diagnose-macos-toolchain`
 - `verify-tauri-change`
 - `package-macos-app`
+- `tauri-local-data`
+- `macos-native-integration`
 
 ## Change checklist
 
