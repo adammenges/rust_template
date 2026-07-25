@@ -1,3 +1,9 @@
 - Always make the top bar the same McClair is the background so that it blends in it looks more like a native app
 - Make the UI reactive to window size by adapting layout/components at any width
 - For custom Tauri title bars, call the current window's `startDragging()` explicitly and grant `core:window:allow-start-dragging`; the injected `data-tauri-drag-region` handler was not reliable here. Verify that the real native window position changes.
+- When the user grants macOS Accessibility or Screen Recording permission after an inspection failure, retry visual QA immediately and verify the real running app before declaring the work complete.
+- Keep the app workspace full-width inside the native window at every size; avoid centered web-style max-width shells that expose large empty gutters in wide windows.
+- Keep the document scrollbar below a custom overlaid titlebar; the toolbar region must never contain or overlap the scrolling track or thumb.
+- Give primary and secondary actions visually distinct hover states; adjacent secondary rows must not merge into an orange primary-action block when hovered.
+- Keep action labels and shortcut badges on shared left/right alignment lines, and do not use a permanent filled state that makes an idle primary action look pre-selected.
+- Command-palette rows are one component family: use identical rest, hover, focus, label, description, and shortcut styling for every action unless the user explicitly requests hierarchy.
