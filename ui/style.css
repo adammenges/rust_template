@@ -322,7 +322,7 @@ input:user-invalid {
     background: transparent;
     text-align: left;
     cursor: pointer;
-    transition: padding 120ms ease, background 120ms ease, color 120ms ease;
+    transition: background 120ms ease, box-shadow 120ms ease, color 120ms ease;
 }
 
 .action span {
@@ -475,7 +475,7 @@ button:focus-visible,
 
     .action:not(:disabled):hover {
         background: rgba(255, 79, 0, .07);
-        box-shadow: inset 6px 0 var(--orange);
+        box-shadow: -6px 0 var(--orange);
     }
 }
 
