@@ -1,0 +1,38 @@
+name: Linux
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-package:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Linux system dependencies
+        run: ./scripts/install_linux_dependencies.sh
+
+      - name: Install pinned Rust and Tauri tooling
+        run: ./scripts/setup.sh
+
+      - name: Check workspace
+        run: ./scripts/check.sh
+
+      - name: Build Linux packages
+        run: ./scripts/build_linux_app.sh
+
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x86_64
+          path: dist/linux/*
+          if-no-files-found: error

@@ -26,8 +26,24 @@ if [[ "${OSTYPE:-}" == darwin* ]]; then
   fi
 
   rustup target add aarch64-apple-darwin --toolchain 1.95.0
+elif [[ "$(uname -s)" == "Linux" ]]; then
+  LINUX_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
+  case "$LINUX_TARGET" in
+    x86_64-unknown-linux-gnu|aarch64-unknown-linux-gnu)
+      rustup target add "$LINUX_TARGET" --toolchain 1.95.0
+      ;;
+    *)
+      echo "error: unsupported Linux host target: $LINUX_TARGET" >&2
+      exit 1
+      ;;
+  esac
+
+  if ! command -v pkg-config >/dev/null 2>&1 || ! pkg-config --exists webkit2gtk-4.1; then
+    echo "note: install Linux system libraries with ./scripts/install_linux_dependencies.sh"
+  fi
 else
-  echo "note: macOS packaging requires a macOS host."
+  echo "error: this template supports macOS and Linux hosts." >&2
+  exit 1
 fi
 
 echo "Fetching locked dependencies..."
