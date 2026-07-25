@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Rust Tauri Template",
   "version": "0.1.0",
-  "identifier": "com.example.macos-tauri-template",
+  "identifier": "com.example.desktop-tauri-template",
   "build": {
     "frontendDist": "../ui",
     "removeUnusedCommands": true
@@ -32,16 +32,13 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["app"],
+    "targets": "all",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "macOS": {
-      "minimumSystemVersion": "13.0"
-    }
+    ]
   }
 }

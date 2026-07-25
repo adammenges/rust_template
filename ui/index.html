@@ -11,7 +11,7 @@
 <body>
     <div class="titlebar" id="titlebar" aria-hidden="true">
         <span>RUST / TAURI</span>
-        <span>MACOS STARTER SYSTEM</span>
+        <span>DESKTOP STARTER SYSTEM</span>
         <span>2026.07</span>
     </div>
 
@@ -41,18 +41,18 @@
                         <div class="field">
                             <div class="label-row">
                                 <label for="app-name">APP_NAME</label>
-                                <kbd>⌘1</kbd>
+                                <kbd><span class="shortcut-mod">⌘</span>1</kbd>
                             </div>
-                            <input type="text" id="app-name" value="My Mac App" maxlength="64" autocomplete="off" spellcheck="false" aria-describedby="app-name-hint">
+                            <input type="text" id="app-name" value="My Desktop App" maxlength="64" autocomplete="off" spellcheck="false" aria-describedby="app-name-hint">
                             <small id="app-name-hint">Letters, numbers, spaces, dots, hyphens, underscores.</small>
                         </div>
 
                         <div class="field">
                             <div class="label-row">
                                 <label for="bundle-id">APP_BUNDLE_ID</label>
-                                <kbd>⌘2</kbd>
+                                <kbd><span class="shortcut-mod">⌘</span>2</kbd>
                             </div>
-                            <input type="text" id="bundle-id" value="com.example.my-mac-app" maxlength="255" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="bundle-id-hint">
+                            <input type="text" id="bundle-id" value="com.example.my-desktop-app" maxlength="255" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="bundle-id-hint">
                             <small id="bundle-id-hint">Reverse DNS, for example com.yourcompany.your-app.</small>
                         </div>
                     </form>
@@ -64,21 +64,21 @@
                             <span class="eyebrow">02 — EXECUTION</span>
                             <h2 id="actions-title">Command palette</h2>
                         </div>
-                        <button class="icon-button" id="btn-shortcuts" type="button" aria-label="Show keyboard shortcuts">⌘ /</button>
+                        <button class="icon-button" id="btn-shortcuts" type="button" aria-label="Show keyboard shortcuts"><span class="shortcut-mod">⌘</span> /</button>
                     </div>
 
                     <div class="action-list">
                         <button class="action" id="btn-check" type="button">
                             <span><strong>Preview checks</strong><small>fmt · clippy · test</small></span>
-                            <kbd>⌘R</kbd>
+                            <kbd><span class="shortcut-mod">⌘</span>R</kbd>
                         </button>
                         <button class="action" id="btn-build" type="button">
-                            <span><strong>Preview .app build</strong><small>release · bundle · verify</small></span>
-                            <kbd>⌘B</kbd>
+                            <span><strong>Preview package build</strong><small>native · release · verify</small></span>
+                            <kbd><span class="shortcut-mod">⌘</span>B</kbd>
                         </button>
                         <button class="action" id="btn-reset" type="button">
                             <span><strong>Reset config</strong><small>restore template values</small></span>
-                            <kbd>⌘K</kbd>
+                            <kbd><span class="shortcut-mod">⌘</span>K</kbd>
                         </button>
                     </div>
                 </section>
@@ -97,9 +97,9 @@
             </section>
 
             <footer>
-                <span>TAURI 2 / RUST 2024 / MACOS 13+</span>
+                <span>TAURI 2 / RUST 2024 / MACOS + LINUX</span>
                 <span>ZÜRICH — SAN FRANCISCO</span>
-                <span>PRESS <kbd>⌘/</kbd> FOR SHORTCUTS</span>
+                <span>PRESS <kbd><span class="shortcut-mod">⌘</span>/</kbd> FOR SHORTCUTS</span>
             </footer>
         </div>
     </main>
@@ -113,12 +113,12 @@
             <button id="btn-close-shortcuts" class="icon-button" type="button" aria-label="Close keyboard shortcuts">×</button>
         </div>
         <dl class="shortcut-list">
-            <div><dt><kbd>⌘1</kbd></dt><dd>Focus app name</dd></div>
-            <div><dt><kbd>⌘2</kbd></dt><dd>Focus bundle ID</dd></div>
-            <div><dt><kbd>⌘R</kbd></dt><dd>Preview checks</dd></div>
-            <div><dt><kbd>⌘B</kbd></dt><dd>Preview build</dd></div>
-            <div><dt><kbd>⌘K</kbd></dt><dd>Reset config</dd></div>
-            <div><dt><kbd>⌘/</kbd></dt><dd>Toggle this panel</dd></div>
+            <div><dt><kbd><span class="shortcut-mod">⌘</span>1</kbd></dt><dd>Focus app name</dd></div>
+            <div><dt><kbd><span class="shortcut-mod">⌘</span>2</kbd></dt><dd>Focus bundle ID</dd></div>
+            <div><dt><kbd><span class="shortcut-mod">⌘</span>R</kbd></dt><dd>Preview checks</dd></div>
+            <div><dt><kbd><span class="shortcut-mod">⌘</span>B</kbd></dt><dd>Preview build</dd></div>
+            <div><dt><kbd><span class="shortcut-mod">⌘</span>K</kbd></dt><dd>Reset config</dd></div>
+            <div><dt><kbd><span class="shortcut-mod">⌘</span>/</kbd></dt><dd>Toggle this panel</dd></div>
         </dl>
     </dialog>
 

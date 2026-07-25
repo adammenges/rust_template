@@ -1,7 +1,13 @@
 const DEFAULTS = Object.freeze({
-    appName: "My Mac App",
-    bundleId: "com.example.my-mac-app",
+    appName: "My Desktop App",
+    bundleId: "com.example.my-desktop-app",
 });
+
+const isMacOS = navigator.userAgent.includes("Mac OS") || navigator.platform?.startsWith("Mac");
+document.documentElement.dataset.platform = isMacOS ? "macos" : "other";
+for (const modifier of document.querySelectorAll(".shortcut-mod")) {
+    modifier.textContent = isMacOS ? "⌘" : "Ctrl+";
+}
 
 const invoke = window.__TAURI__?.core?.invoke;
 const appWindow = window.__TAURI__?.window?.getCurrentWindow?.();
@@ -147,7 +153,7 @@ shortcutsDialog.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-    if (!event.metaKey) return;
+    if (!(isMacOS ? event.metaKey : event.ctrlKey)) return;
 
     const shortcuts = {
         "1": () => { appNameInput.focus(); appNameInput.select(); },

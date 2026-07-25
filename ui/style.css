@@ -8,8 +8,8 @@
     --orange: #ff4f00;
     --warning: #d89a00;
     --error: #c9271c;
-    --sans: "Helvetica Neue", Helvetica, Arial, -apple-system, sans-serif;
-    --mono: "SFMono-Regular", "SF Mono", Menlo, Monaco, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: "SFMono-Regular", "SF Mono", Menlo, Monaco, "Liberation Mono", Consolas, monospace;
     font-family: var(--sans);
     background: var(--paper);
     color: var(--ink);
@@ -64,6 +64,14 @@ button { color: inherit; }
 .titlebar span:nth-child(2) { justify-self: center; }
 .titlebar span:last-child { justify-self: end; }
 .titlebar span:first-child { margin-left: 58px; }
+
+html[data-platform="other"] .titlebar { display: none; }
+
+html[data-platform="other"] #app {
+    height: 100vh;
+    height: 100svh;
+    margin-top: 0;
+}
 
 #app {
     height: calc(100vh - 38px);
@@ -314,7 +322,7 @@ input:user-invalid {
     background: transparent;
     text-align: left;
     cursor: pointer;
-    transition: padding 120ms ease, background 120ms ease, color 120ms ease;
+    transition: background 120ms ease, box-shadow 120ms ease, color 120ms ease;
 }
 
 .action span {
@@ -467,7 +475,7 @@ button:focus-visible,
 
     .action:not(:disabled):hover {
         background: rgba(255, 79, 0, .07);
-        box-shadow: inset 6px 0 var(--orange);
+        box-shadow: -6px 0 var(--orange);
     }
 }
 

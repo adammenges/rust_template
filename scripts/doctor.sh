@@ -35,6 +35,39 @@ if [[ "${OSTYPE:-}" == darwin* ]]; then
     printf 'miss  %-14s run: ./scripts/setup.sh\n' "macOS target"
     status=1
   fi
+elif [[ "$(uname -s)" == "Linux" ]]; then
+  check_command file
+  check_command pkg-config
+
+  if command -v pkg-config >/dev/null 2>&1; then
+    for module in gtk+-3.0 webkit2gtk-4.1 librsvg-2.0; do
+      if pkg-config --exists "$module"; then
+        printf 'ok    %-14s %s\n' "$module" "$(pkg-config --modversion "$module")"
+      else
+        printf 'miss  %-14s run: ./scripts/install_linux_dependencies.sh\n' "$module"
+        status=1
+      fi
+    done
+  fi
+
+  LINUX_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
+  case "$LINUX_TARGET" in
+    x86_64-unknown-linux-gnu|aarch64-unknown-linux-gnu)
+      if rustup target list --installed --toolchain 1.95.0 | grep -qx "$LINUX_TARGET"; then
+        printf 'ok    %-14s %s\n' "Linux target" "$LINUX_TARGET"
+      else
+        printf 'miss  %-14s run: ./scripts/setup.sh\n' "Linux target"
+        status=1
+      fi
+      ;;
+    *)
+      printf 'fail  %-14s unsupported host: %s\n' "Linux target" "$LINUX_TARGET"
+      status=1
+      ;;
+  esac
+else
+  printf 'fail  %-14s macOS and Linux are supported\n' "operating system"
+  status=1
 fi
 
 if cargo tauri --version >/dev/null 2>&1; then
