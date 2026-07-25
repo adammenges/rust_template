@@ -17,7 +17,7 @@ fn get_build_command(app_name: String, bundle_id: String) -> Result<CommandPrevi
 
     Ok(CommandPreview {
         command: format!(
-            "$ APP_NAME={} APP_BUNDLE_ID={} ./scripts/build_macos_app.sh",
+            "$ APP_NAME={} APP_BUNDLE_ID={} ./scripts/build.sh",
             shell_quote(app_name),
             shell_quote(bundle_id)
         ),
@@ -161,7 +161,7 @@ mod tests {
 
         assert_eq!(
             preview.command,
-            "$ APP_NAME='My App' APP_BUNDLE_ID='com.example.my-app' ./scripts/build_macos_app.sh"
+            "$ APP_NAME='My App' APP_BUNDLE_ID='com.example.my-app' ./scripts/build.sh"
         );
     }
 }
