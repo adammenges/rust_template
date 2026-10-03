@@ -1,0 +1,7 @@
+{
+  "package": "native-starter",
+  "executable": "native-starter",
+  "display_name": "Native Starter",
+  "identifier": "org.example.native-starter",
+  "storage_name": "native-starter"
+}

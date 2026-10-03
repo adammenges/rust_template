@@ -1,22 +1,48 @@
-[workspace]
-members = ["src-tauri"]
-resolver = "3"
-
-[workspace.package]
+[package]
+name = "native-starter"
+version = "0.1.0"
 edition = "2024"
 rust-version = "1.95"
 license = "MIT"
+default-run = "native-starter"
 
-[workspace.lints.rust]
-unsafe_code = "forbid"
+[[bin]]
+name = "native-starter"
+path = "src/main.rs"
 
-[workspace.lints.clippy]
-all = { level = "warn", priority = -1 }
-pedantic = { level = "warn", priority = -1 }
+[features]
+default = ["runtime-shaders"]
+runtime-shaders = ["gpui/runtime_shaders"]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4.6.7", features = ["derive"] }
+dirs = "7.0.0"
+fs2 = "0.4.3"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+tracing = "0.1.44"
+tracing-appender = "0.2.4"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+unicode-segmentation = "1.13.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+gpui = { version = "=0.2.2", default-features = false, features = ["font-kit"] }
+gpui-symbols = { version = "=0.6.1", default-features = false, features = ["component", "cache"] }
+objc2 = "0.6.4"
+objc2-app-kit = "0.3.2"
+objc2-foundation = "0.3.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gpui = { version = "=0.2.2", default-features = false, features = ["font-kit", "wayland", "x11"] }
+
+[build-dependencies]
+serde_json = "1"
+
+[dev-dependencies]
+tempfile = "3"
 
 [profile.release]
 codegen-units = 1
-lto = true
-opt-level = "s"
-panic = "abort"
+lto = "thin"
 strip = true
