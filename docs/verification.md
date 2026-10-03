@@ -153,3 +153,17 @@ Executed checks in this follow-up:
 
 The physical IME, accessibility, tray clicks, signing/notarization, older-OS,
 disk-full/fsync/force-kill, and filesystem-stall limits listed above still apply.
+
+## GitHub Actions removal — 2026-10-03
+
+Both push and PR runs for commit `2b773a6` stopped before any validation steps.
+GitHub annotated the Ubuntu job with an account billing lock; default matrix
+fail-fast cancelled the macOS job. At the user’s explicit request, all GitHub
+Actions workflows and the obsolete Actions Dependabot update entry were removed.
+Cargo dependency updates and the full local `scripts/check.sh`, native preview,
+and host packaging workflows remain available. Earlier references to CI above
+record the rewrite’s original configuration, which is no longer included.
+
+Local checks passed again: 37 Rust tests, formatting, strict Clippy, template
+identity/metadata and Bash syntax checks, plus a debug build. Removing workflows
+does not establish Linux build/runtime or other unverified platform behavior.
