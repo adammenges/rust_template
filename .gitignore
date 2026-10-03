@@ -25,3 +25,11 @@ assets/icons/*.icns
 .idea/
 .vscode/
 *.swp
+
+# Secrets and machine-specific development settings
+.env
+.env.*
+!.env.example
+*.p12
+*.mobileprovision
+*.keychain*

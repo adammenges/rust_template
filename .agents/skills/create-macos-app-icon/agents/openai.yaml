@@ -1,4 +1,0 @@
-interface:
-  display_name: "Create macOS App Icon"
-  short_description: "Design and generate polished macOS app icons"
-  default_prompt: "Use $create-macos-app-icon to create and install a production-ready macOS app icon."
