@@ -1,173 +1,225 @@
-# Rust + Tauri Desktop Template
+# Native Starter
 
-A small, production-minded starting point for native-feeling macOS and Linux apps built with Rust and [Tauri 2](https://v2.tauri.app). The frontend is plain HTML, CSS, and JavaScript: no Node.js, package manager, bundler, or frontend build step.
+A reusable native Rust desktop template modeled on HEX's GPUI architecture.
+The interface is Rust all the way down: GPUI elements, application entities,
+`Render`, and explicit event handlers. No webview, IPC bridge, Node, or bundler.
 
-## What is included
+The example has Home and Settings panes, a Unicode scratchpad, persisted workspace
+name and spacing density, and a real cancellable CPU calculation with progress,
+results, and an explicit failure demonstration. macOS has a native menu-bar entry.
 
-- Rust 2024 backend with typed, validated Tauri IPC and unit tests
-- Responsive terminal-inspired UI that remains usable down to a 420 px window
-- A macOS title bar overlay and native Linux window decorations
-- Platform-aware Command shortcuts on macOS and Ctrl shortcuts on Linux
-- Capability-based permissions, a restrictive content security policy, and frozen JavaScript prototypes
-- Reproducible Rust, Tauri CLI, and Cargo dependency versions
-- Verified Apple Silicon `.app`, Debian, and AppImage packaging
-- An Ubuntu 22.04 CI build for portable Linux artifacts
-- Dependabot update configuration, agent instructions, and a durable feedback loop
+## Develop
 
-## Requirements
+Requirements: Rust 1.95.0 with rustfmt/Clippy and Python 3. On Apple Silicon macOS,
+install Command Line Tools (`xcode-select --install`). GPUI uses Apple's native
+renderer; no audio, voice engine, credentials, or cloud setup is required.
 
-Both platforms require [rustup](https://rustup.rs). The repository pins Rust 1.95.0 and Tauri CLI 2.11.4.
-
-### macOS
-
-- macOS 13 or newer on Apple Silicon
-- Xcode Command Line Tools (`xcode-select --install`)
-
-Packaged macOS apps explicitly target `aarch64-apple-darwin`; Intel Macs are not supported.
-
-### Linux
-
-- x86-64 or ARM64 Linux with glibc
-- WebKitGTK 4.1, GTK 3, and Tauri's native build dependencies
-
-Install the supported distribution packages, then the pinned Rust tooling:
-
-```bash
-./scripts/install_linux_dependencies.sh
-./scripts/setup.sh
-```
-
-The dependency installer supports apt, dnf, pacman, and zypper. For portable AppImages, build on the oldest Linux base you intend to support. The included CI uses Ubuntu 22.04, one of Tauri's recommended baselines.
-
-## Start here
-
-```bash
+```sh
 ./scripts/setup.sh
 ./scripts/doctor.sh
 ./scripts/dev.sh
-```
-
-The Tauri dev server watches both `ui/` and the Rust crate. You can also open `ui/index.html` directly for a visual-only browser preview; IPC actions are disabled in that mode.
-
-## Check and package
-
-On either supported host:
-
-```bash
 ./scripts/check.sh
+```
+
+The lockfile is committed. `setup.sh` uses rustup when available, checks the host,
+and fetches locked dependencies. A Homebrew Rust installation also works if it
+matches the pinned version and includes Clippy/rustfmt.
+
+On Ubuntu 22.04, first run `./scripts/install_linux_dependencies.sh`. Linux builds
+use GPUI's X11 and Wayland features and require a Vulkan-capable GPU/driver stack.
+Linux implementation, CI configuration, and packaging scripts are present but have
+**not been compiled or exercised on Linux in this rewrite**. Other operating
+systems have no adapter. macOS packaging is Apple Silicon only.
+
+```sh
+./scripts/dev.sh --preview home
+./scripts/dev.sh --preview settings
+./scripts/dev.sh --preview home --preview-width 480 --preview-height 600
+./scripts/dev.sh --preview error --quit-after-ms 3000
+./scripts/dev.sh --data-dir /tmp/my-isolated-starter
+```
+
+Preview uses fixed settings/progress/results and in-memory text fields. It never
+discovers or creates user storage, installs a status item, or starts workers.
+Save, Run, Cancel, and density changes are disabled. Text editing/navigation work
+in memory. The error preview renders the real error presentation with a fixture.
+Use `--data-dir` for isolated **real** persistence and worker checks.
+
+Keyboard: Command on macOS, Ctrl on Linux. `1` Home, `2` Settings, `R` Run,
+`.` Cancel, `Shift-R` Try failure, `S` Save, `Shift-D` Toggle draft density, `L` Focus scratchpad, `W` Close,
+`Q` Quit. Text fields use native editing/clipboard bindings and input methods.
+
+## Create a new app
+
+Copy this repository into a new directory, excluding `.git`, `target`, `dist`, and
+local `.env` files; initialize a new Git repository if desired. Then run:
+
+```sh
+python3 scripts/rename.py \
+  --package my-workbench \
+  --executable my-workbench \
+  --display-name 'My Workbench' \
+  --identifier org.example.my-workbench \
+  --storage-name my-workbench
+cargo check
+./scripts/check.sh
+./scripts/dev.sh
 ./scripts/build.sh
 ```
 
-`build.sh` dispatches to the native packaging workflow:
+`app.json` centralizes package, executable, display name, reverse-DNS application
+identifier, and storage directory name. The rename tool validates them and updates
+Cargo's package/bin/default-run entries. `cargo check` refreshes the root package
+entry in Cargo.lock. Rust identity constants and package metadata derive from that
+file. `--check` detects drift. Package and executable names may differ. Storage
+names are path components, never arbitrary paths.
 
-- macOS builds and verifies `dist/Rust Tauri Template.app`.
-- Linux builds and verifies `.deb` and `.AppImage` files in `dist/linux/`.
+Update the version in Cargo.toml, README/product copy, and your copyright notice;
+replace `assets/icons/AppIcon-1024.png` with a 1024 px PNG. Keep required third-party
+notices. Changing the storage name selects a new data directory and does not
+migrate an existing installation. Decide migration policy before distributing a
+renamed app. Remove or replace the demonstration calculation/scratchpad as your
+app grows; keep domain policy, platform details, and storage ownership separated.
 
-The macOS build is locked to Apple Silicon, applies an ad-hoc signature when needed, and verifies bundle metadata, architecture, icon, and signature. The Linux build uses the native x86-64 or ARM64 target, checks the required development libraries, and verifies every requested package before copying it to `dist/linux/`.
-
-Platform-specific entry points are also available:
-
-```bash
-./scripts/build_macos_app.sh
-./scripts/build_linux_app.sh
-```
-
-Linux packages should be built on Linux, and macOS bundles should be built on macOS. AppImage portability depends on the glibc version of the build host, so use the included Ubuntu 22.04 CI workflow for release artifacts rather than building on an arbitrarily new workstation.
-
-### Customize a build
-
-```bash
-APP_NAME="My App" \
-APP_BUNDLE_ID="com.example.my-app" \
-APP_VERSION="1.2.3" \
-./scripts/build.sh
-```
-
-Additional build variables:
-
-| Variable | Default | Platform | Purpose |
-| --- | --- | --- | --- |
-| `APP_NAME` | `productName` in Tauri config | Both | Package and display name |
-| `APP_BUNDLE_ID` | `identifier` in Tauri config | Both | Reverse-DNS application identifier |
-| `APP_VERSION` | crate version | Both | Package version |
-| `ICON_SOURCE` | `assets/icons/AppIcon-1024.png` | Both | Square PNG or SVG icon source |
-| `DIST_DIR` | `dist` / `dist/linux` | Both | Final artifact directory |
-| `FORCE_ICONS` | `0` | Both | Regenerate every platform icon when set to `1` |
-| `LINUX_BUNDLES` | `deb,appimage` | Linux | Comma-separated `deb`, `appimage`, and/or `rpm` selection |
-
-RPM generation is supported with `LINUX_BUNDLES=rpm`, but the package must be built on a Linux host with the required RPM tooling.
-
-## Keyboard map
-
-Use Command on macOS and Ctrl on Linux:
-
-| Shortcut | Action |
-| --- | --- |
-| <kbd>Mod+1</kbd> / <kbd>Mod+2</kbd> | Focus app name / bundle ID |
-| <kbd>Mod+R</kbd> | Preview the repository check command |
-| <kbd>Mod+B</kbd> | Validate config and preview the native package command |
-| <kbd>Mod+K</kbd> | Reset the demo configuration |
-| <kbd>Mod+/</kbd> | Toggle the shortcut panel |
-
-These shortcuts are window-scoped and do not register system-wide hotkeys.
-
-## Project map
+## Architecture and lifecycle
 
 ```text
-ui/                              Static, platform-aware frontend
-src-tauri/src/                   Rust commands and app entry point
-src-tauri/tauri.conf.json        Shared window, security, and bundle config
-src-tauri/tauri.*.conf.json      Host-specific package defaults
-src-tauri/capabilities/          Tauri permission grants
-assets/icons/                    Cross-platform source app icon
-assets/symbols/                  Exported symbols for future screens
-scripts/                         Setup, checks, development, and packaging
-.github/workflows/linux.yml      Reproducible Linux check and package build
-.agents/skills/                  Reusable repository-specific agent workflows
-AGENTS.md                        Coding-agent guidance
-FEEDBACK.md                      Persistent project-specific corrections
+CLI / startup -> application-owned Session -> window-local drafts and navigation
+                          |                       |
+                          |                 shared GPUI controls + TextInput
+                          +-> cancellable calculation worker
+                          +-> serialized atomic persistence worker
+                          +-> typed committed settings/runtime result
+AppKit status item -> coalesced Open/Quit intents -> application event loop
 ```
 
-Frontend calls use `window.__TAURI__.core.invoke()`, enabled by `withGlobalTauri` in `tauri.conf.json`. Keep backend commands narrow, validate all frontend input again in Rust, and grant only the capabilities a feature requires.
+`domain.rs` contains pure policy and Serde models. `persistence.rs` owns document
+serialization and atomic storage. `background.rs` owns threads and bounded
+channels; `session.rs` projects terminal outcomes into observable app state.
+`desktop_ui.rs` owns consistent pane headers, typography, width, spacing, and
+controls. The window owns draft settings and its scratchpad. `platform/macos.rs`
+owns the native status item and retains its target/menu until explicit teardown.
 
-## Common commands
+On macOS, closing the window keeps the application and accepted work alive.
+Open from the menu bar or Dock to recreate/focus it. Quit cancels calculation,
+drains accepted persistence writes, removes the native status item, and joins both
+workers. Linux has no tray or service; closing its window quits. Preview closes
+quit on both platforms. No worker is owned by a window.
 
-```bash
-make                 # Show targets
-make setup
-make setup-linux     # Install native dependencies on Linux
-make doctor
-make dev
-make check
-make icons
-make build-app       # Package for the current host
-make build-macos
-make build-linux
-make clean
+There is one calculation at a time. Job admission capacity is one; the storage
+queue holds at most two requests; terminal replies hold four. UI handlers use
+`try_send`, never wait. Progress is an atomic latest value, not a growing queue.
+The worker itself rejects duplicate starts until its terminal result is consumed;
+rejected requests cannot reset another job’s cancellation or progress. Unexpected
+worker exit is surfaced and further admission stops until restart.
+Cancellation is checked every chunk (100,000 samples) with a 20 ms demo pacing
+interval. Terminal calculation failure is explicit and retryable. Accepted saves
+drain on quit even if the UI reply receiver is gone. The application waits asynchronously for its shutdown thread **before** asking
+GPUI to quit. On macOS an AppKit quit gate also defers Dock/system termination
+with `NSTerminateLater` and replies after work and logs finish. GPUI's quit futures
+have a 100 ms timeout, and AppKit termination need not return from `run()`, so
+neither is used as the durability boundary. Linux also joins the finished thread
+after the event loop returns. OS-level disk stalls can still delay process exit; force-kill can lose
+uncommitted work. Calculation results are persisted only after completion.
+
+Storage:
+
+- macOS: `~/Library/Application Support/<storage_name>/`
+- Linux: `$XDG_DATA_HOME/<storage_name>/`, normally `~/.local/share/<storage_name>/`
+- `settings.json`, `state.json`, `instance.lock`, and `logs/process.*.jsonl`
+
+The directory is owner-only on Unix. An exclusive lease prevents competing
+writers. Missing files use defaults; malformed, oversized, or future-version
+settings are preserved and reported. A settings load failure blocks saves until
+you repair/move the file externally and restart. A state load failure blocks state
+writes, while calculations still work in memory. Existing shared directories passed
+as `--data-dir` are rejected without changing their permissions; use a dedicated
+private directory. Symlinked roots/locks and nonregular settings/state documents
+(including FIFOs) are rejected; existing files are preserved. Validated writes use a sibling
+file, file sync, atomic rename, and parent-directory sync. A failed save keeps the
+committed UI settings active and exposes its error. If directory sync fails after
+rename, the disk commit is uncertain: restart to reload. A crashed `.pending`
+file is ignored and replaced on the next explicit save. Settings show unsaved,
+saving, and saved feedback. Load errors and the latest action failure remain
+visible together; saving preferences does not replace an active job’s status.
+
+Diagnostics are structured Tracing JSON with `RUST_LOG` filtering, an asynchronous
+1,024-line lossy queue, daily rotation, and seven retained files. Queue pressure
+may drop diagnostic lines, never application outcomes. Preview logs to stderr.
+No credentials are needed; `.env`, signing keys, and build outputs are ignored.
+
+## Package
+
+```sh
+./scripts/build.sh
+open 'dist/Native Starter.app'                 # macOS
+./scripts/build.sh --deb-only                 # native Linux: .deb only
+APPIMAGETOOL=/path/to/appimagetool ./scripts/build.sh  # native Linux: .deb + AppImage
 ```
 
-## Rename the template permanently
+macOS builds a release `aarch64-apple-darwin` executable, creates Info.plist from
+identity metadata, converts the icon with `sips`/`iconutil`, includes attribution,
+ad-hoc signs, and verifies identity/resources/ARM64/signature. Default artifacts
+are for local use. Optional distribution inputs are:
 
-For a new app, update these together:
+```sh
+SIGNING_IDENTITY='Developer ID Application: Your Name (YOURTEAM)' \
+NOTARY_PROFILE='your-keychain-profile' ./scripts/build.sh
+```
 
-1. Package `name`, `version`, and `description` in `src-tauri/Cargo.toml`.
-2. The crate path in `src-tauri/src/main.rs` if the package name changes.
-3. `productName`, `version`, `identifier`, and window title in `src-tauri/tauri.conf.json`.
-4. Default values and copy in `ui/`.
-5. `assets/icons/AppIcon-1024.png`, then run `make icons`.
+No signing account/team is embedded. Notarization is opt-in via a Keychain profile;
+there is no publishing, updater feed, bucket, or release workflow. Validate your
+signing/notarization on your own account before distribution.
 
-Run `make check` and the native package target after renaming.
+Linux packaging targets native x86-64 or ARM64, generates a `.desktop` entry/icon,
+and builds a `.deb` with runtime dependencies. For AppImages, supply a trusted
+host-architecture `appimagetool` on PATH or via `APPIMAGETOOL`; the script does not
+download or execute a remote packaging tool. It bundles linked libraries except
+glibc and host graphics drivers. Host Vulkan drivers remain required. Release
+AppImages must be built on Ubuntu 22.04 (glibc 2.35), or a deliberately chosen older
+baseline, and tested on the destination GPU/display stack. The Debian package
+also declares glibc >= 2.35. CI checks macOS and Ubuntu and builds macOS/.deb;
+AppImage generation is an explicit local packaging step.
 
-## Distribution
+## Repeatable native smoke checks
 
-Local macOS builds receive an ad-hoc signature suitable for development. Distribution outside your Mac additionally requires an Apple Developer certificate and notarization.
+After `cargo build --locked`, run this in a graphical macOS or Linux session:
 
-Linux users can install the generated Debian package or run the AppImage directly after making it executable. Sign release artifacts and publish checksums in your release workflow. Keep signing keys and credentials out of the repository.
+```sh
+python3 scripts/test_preview.py
+# Or exercise the packaged macOS executable:
+python3 scripts/test_preview.py --executable 'dist/Native Starter.app/Contents/MacOS/native-starter'
+```
 
-## Use as a GitHub template
+It checks all three fixtures at different viewport sizes, rejects conflicting
+CLI flags, observes startup/window/quit/shutdown ordering, and verifies that real
+user storage remains unchanged. A timeout fails the check. It does not replace
+visual inspection, physical IME testing, or live persistence/workflow testing.
+Use `--executable` with your new executable path after renaming the template.
+See `docs/verification.md` for the exact checks and native inspection limits.
 
-Enable **Settings → General → Template repository**, then choose **Use this template**. Remove any project-specific history or defaults you do not want downstream before publishing.
+## What differs from HEX
 
-## License
+The GPUI version/configuration follows HEX: 0.2.2 with defaults off, `font-kit`,
+plus X11/Wayland on Linux; macOS uses objc2/AppKit and gpui-symbols 0.6.1. The full
+MIT-licensed text input is adapted with attribution and Linux Ctrl bindings.
+The shell follows HEX’s gray visual tokens, 220 px sidebar, framed navigation
+icons, fixed 70 px pane headers, 940 px shared content width, compact controls,
+and pane/panel rendering. Below 700 px the sidebar narrows to 144 px so the
+480 px minimum remains usable. Home and Settings keep generic example content.
 
-[MIT](LICENSE)
+GPUI's **built-in** `runtime_shaders` feature is enabled by default so Command Line
+Tools suffice; HEX's default precompiles the same framework shaders using Xcode's
+Metal tools. This adds no custom shaders. With full Xcode/Metal installed, use
+`GPUI_PRECOMPILED_SHADERS=1 ./scripts/build.sh` or `cargo build --no-default-features`.
+Runtime shaders add framework shader compilation at startup.
+
+The starter has no recognizer, audio queues, hotkey event tap, GTK overlay, engine
+service, global settings atomics, API daemon, NDJSON event database, update engine,
+or release accounts. Two workers and one application entity are enough here;
+Tracing plus a typed last-result file replace HEX's voice observation pipeline.
+Linux and macOS share the same application state because this template has no
+independent voice service whose lifetime must outlive the Linux UI.
+
+See [AGENTS.md](AGENTS.md), [feature map](docs/features.md),
+[verification](docs/verification.md), and [third-party notices](THIRD_PARTY.md).
