@@ -72,3 +72,7 @@ release artifacts on Ubuntu 22.04 or a deliberately chosen oldest glibc baseline
 Keep scripts Bash with `set -euo pipefail`, executable, and safe with spaces.
 Signing/notarization are optional parameters; never embed accounts or publish
 artifacts without explicit authorization.
+
+GitHub Actions workflows are intentionally omitted at the user’s request. Keep
+validation local with `scripts/check.sh` and the host packaging/preview commands.
+Do not reintroduce hosted workflows unless explicitly requested.

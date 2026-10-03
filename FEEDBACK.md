@@ -8,3 +8,4 @@
 - Keep action labels and shortcut badges on shared left/right alignment lines, and do not use a permanent filled state that makes an idle primary action look pre-selected.
 - Command-palette rows are one component family: use identical rest, hover, focus, label, description, and shortcut styling for every action unless the user explicitly requests hierarchy.
 - Match HEX from its implementation: gray sidebar navigation, fixed pane headers, shared content width, compact panels, typography, and controls. Using GPUI alone does not establish visual fidelity. Test failure and lifecycle paths and fix the exposed problems.
+- When GitHub checks are blocked by the account billing lock, remove the GitHub Actions workflows as requested. Keep checks local; do not substitute CI refactors or reintroduce hosted workflows without an explicit request.

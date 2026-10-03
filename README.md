@@ -27,7 +27,7 @@ matches the pinned version and includes Clippy/rustfmt.
 
 On Ubuntu 22.04, first run `./scripts/install_linux_dependencies.sh`. Linux builds
 use GPUI's X11 and Wayland features and require a Vulkan-capable GPU/driver stack.
-Linux implementation, CI configuration, and packaging scripts are present but have
+Linux implementation and packaging scripts are present but have
 **not been compiled or exercised on Linux in this rewrite**. Other operating
 systems have no adapter. macOS packaging is Apple Silicon only.
 
@@ -178,8 +178,10 @@ download or execute a remote packaging tool. It bundles linked libraries except
 glibc and host graphics drivers. Host Vulkan drivers remain required. Release
 AppImages must be built on Ubuntu 22.04 (glibc 2.35), or a deliberately chosen older
 baseline, and tested on the destination GPU/display stack. The Debian package
-also declares glibc >= 2.35. CI checks macOS and Ubuntu and builds macOS/.deb;
-AppImage generation is an explicit local packaging step.
+also declares glibc >= 2.35. Build and validate packages locally on the appropriate
+host. GitHub Actions workflows are intentionally omitted; use `./scripts/check.sh`
+for formatting, tests, and strict Clippy. AppImage generation is an explicit local
+packaging step.
 
 ## Repeatable native smoke checks
 

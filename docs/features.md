@@ -12,7 +12,7 @@ Both roots share `app_window.rs`, `session.rs`, and `desktop_ui.rs`.
 | Runtime state | Last successful result retained in state.json; failed/cancelled jobs do not replace it | Both | State round-trip test; corruption preserves file and blocks writes until repair/restart |
 | Recovery | Visible load/save/job errors; malformed settings never overwritten; external file repair then restart | Both | Malformed/future/oversized/nonregular-document and write-failure/recovery tests; directory-sync failure after rename has uncertain disk commit |
 | Native ownership | Close leaves app/work alive; menu bar Open/Quit; Dock reopens window | macOS | AppKit target/action implementation; native evidence and remaining gaps in verification.md |
-| Window exit | Closing last window cancels work and quits; no background daemon or tray | Linux; preview on both | Linux not locally executed; source and CI configuration are not host proof |
+| Window exit | Closing last window cancels work and quits; no background daemon or tray | Linux; preview on both | Linux not locally executed; source and packaging configuration are not host proof |
 | Quit | Cmd/Ctrl Q/native menu -> cancel CPU -> drain saves -> release native item -> application waits for worker drain before native termination | Both | Worker drain test; GPUI 100 ms timeout avoided with pre-termination drain and AppKit quit gate; OS disk stalls remain possible |
 | Diagnostics | JSON logs, RUST_LOG, async bounded queue, daily rotation, seven files | Both | Startup/shutdown records; preview uses stderr and creates no log directory |
 | Preview | --preview home/settings/error; fixed fixtures; text/nav only; optional --quit-after-ms | Both | `scripts/test_preview.py` checks three viewport fixtures, lifecycle, CLI rejection, and storage isolation; fixtures do not prove actual work/persistence/native integration |
@@ -23,3 +23,6 @@ Implementation entry points: `main.rs`, `app_window.rs`, `domain.rs`,
 `background.rs`, `persistence.rs`, `platform/macos.rs`. Focused tests live beside
 behavior; `scripts/test_template.py` covers rename/package metadata isolation and rejected-input
 preservation. `scripts/test_preview.py` is an opt-in native smoke check.
+
+Validation is local. No GitHub Actions workflows are included; use
+`scripts/check.sh` and the native preview/packaging commands.
