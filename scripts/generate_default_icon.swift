@@ -33,8 +33,13 @@ NSColor(calibratedWhite: 1.0, alpha: 0.08).setFill()
 cardPath.fill()
 
 if let baseSymbol = NSImage(systemSymbolName: "sparkles", accessibilityDescription: nil),
-   let configured = baseSymbol.withSymbolConfiguration(.init(pointSize: 440, weight: .medium)),
-   let tinted = configured.withTintColor(.white) {
+   let configured = baseSymbol.withSymbolConfiguration(.init(pointSize: 440, weight: .medium)) {
+    let tinted = NSImage(size: configured.size)
+    tinted.lockFocus()
+    configured.draw(at: .zero, from: .zero, operation: .sourceOver, fraction: 1.0)
+    NSColor.white.setFill()
+    NSRect(origin: .zero, size: configured.size).fill(using: .sourceIn)
+    tinted.unlockFocus()
     let symbolRect = NSRect(x: 292, y: 292, width: 440, height: 440)
     tinted.draw(in: symbolRect)
 } else {
@@ -53,9 +58,19 @@ if let baseSymbol = NSImage(systemSymbolName: "sparkles", accessibilityDescripti
 
 image.unlockFocus()
 
-guard let tiff = image.tiffRepresentation,
-      let bitmap = NSBitmapImageRep(data: tiff),
-      let pngData = bitmap.representation(using: .png, properties: [:]) else {
+// An explicit bitmap avoids a Retina display silently producing a 2048 px source.
+guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 1024, pixelsHigh: 1024,
+    bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+    colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0),
+    let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
+    fputs("Failed to allocate icon bitmap.\n", stderr)
+    exit(1)
+}
+NSGraphicsContext.saveGraphicsState()
+NSGraphicsContext.current = context
+image.draw(in: canvasRect)
+NSGraphicsContext.restoreGraphicsState()
+guard let pngData = bitmap.representation(using: .png, properties: [:]) else {
     fputs("Failed to render icon image.\n", stderr)
     exit(1)
 }
